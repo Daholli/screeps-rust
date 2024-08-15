@@ -3,7 +3,7 @@ use std::{
     collections::{hash_map::Entry, HashMap, HashSet},
 };
 
-use js_sys::{JsString, Object, Reflect};
+use js_sys::{Function, JsString, Object, Reflect};
 use log::*;
 use screeps::{
     constants::{ErrorCode, Part, ResourceType},

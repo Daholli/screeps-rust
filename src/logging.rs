@@ -1,6 +1,5 @@
-use core::panic::PanicInfo;
 use std::{fmt::Write, panic};
-
+use std::panic::PanicHookInfo;
 use js_sys::JsString;
 use log::*;
 use screeps::game;
@@ -35,8 +34,16 @@ pub fn setup_logging(verbosity: log::LevelFilter) {
     fern::Dispatch::new()
         .level(verbosity)
         .format(|out, message, record| {
+            let color = match record.level() {
+                Level::Error => "#DC5257",
+                Level::Warn => "#DC5257",
+                Level::Info => "#F3C87B",
+                Level::Debug => "#7986CB",
+                Level::Trace => "#444444",
+            };
             out.finish(format_args!(
-                "({}) {}: {}",
+                "<font color=\"{}\">[{}]</font> {}: {}",
+                color,
                 record.level(),
                 record.target(),
                 message
@@ -71,7 +78,7 @@ extern "C" {
     fn stack_trace_limit(size: f32);
 }
 
-fn panic_hook(info: &PanicInfo) {
+fn panic_hook(info: &PanicHookInfo) {
     // import JS Error API to get backtrace info (backtraces don't work in wasm)
     // Node 8 does support this API: https://nodejs.org/docs/latest-v8.x/api/errors.html#errors_error_stack
 

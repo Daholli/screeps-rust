@@ -1,4 +1,4 @@
-{                                                                           
+{
   inputs = {
     utils.url = "github:numtide/flake-utils";
     fenix = {
@@ -13,6 +13,8 @@
         pkgs = import nixpkgs { inherit system; };
       in
       {
+        formatter = nixpkgs.legacyPackages.${system}.nixpkgs-fmt;
+
         devShells.default = pkgs.mkShell {
           nativeBuildInputs =
             [
