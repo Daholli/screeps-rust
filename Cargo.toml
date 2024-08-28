@@ -1,5 +1,5 @@
 [package]
-name = "rusty-screeps"
+name = "screeps-rust"
 version = "0.0.0"
 authors = []
 edition = "2021"

@@ -149,19 +149,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rusty-screeps"
-version = "0.0.0"
-dependencies = [
- "fern",
- "js-sys",
- "log",
- "screeps-game-api",
- "wasm-bindgen",
- "wasm-bindgen-test",
- "web-sys",
-]
-
-[[package]]
 name = "ryu"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -190,6 +177,19 @@ dependencies = [
  "serde_json",
  "serde_repr",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "screeps-rust"
+version = "0.0.0"
+dependencies = [
+ "fern",
+ "js-sys",
+ "log",
+ "screeps-game-api",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
+ "web-sys",
 ]
 
 [[package]]

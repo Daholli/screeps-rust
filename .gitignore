@@ -36,3 +36,5 @@ nbproject
 screeps.toml
 .direnv/
 result
+
+.cargo/

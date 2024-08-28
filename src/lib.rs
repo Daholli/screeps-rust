@@ -2,17 +2,10 @@ use std::{
     cell::RefCell,
     collections::{hash_map::Entry, HashMap, HashSet},
 };
-
 use js_sys::{JsString, Object, Reflect};
 use log::*;
-use screeps::{
-    constants::{ErrorCode, Part, ResourceType},
-    enums::StructureObject,
-    find, game,
-    local::ObjectId,
-    objects::{Creep, Source, StructureController},
-    prelude::*,
-};
+use screeps::{constants::{ErrorCode, Part, ResourceType}, enums::StructureObject, find, game, local::ObjectId, objects::{Creep, Source, StructureController}, HasId, HasPosition, SharedCreepProperties, StructureSpawn, StructureStorage};
+use screeps::Part::{Move, Work};
 use wasm_bindgen::prelude::*;
 
 mod logging;
@@ -32,6 +25,12 @@ static INIT_LOGGING: std::sync::Once = std::sync::Once::new();
 enum CreepTarget {
     Upgrade(ObjectId<StructureController>),
     Harvest(ObjectId<Source>),
+}
+
+#[repr(C)]
+struct CreepSpawnInfo {
+    name_prefix: String,
+    parts: Vec<Part>
 }
 
 // add wasm_bindgen to any function you would like to expose for call from js
@@ -56,20 +55,30 @@ pub fn game_loop() {
     });
 
     debug!("running spawns");
-    let mut additional = 0;
     for spawn in game::spawns().values() {
         debug!("running spawn {}", spawn.name());
 
-        let body = [Part::Move, Part::Move, Part::Carry, Part::Work];
-        if spawn.room().unwrap().energy_available() >= body.iter().map(|p| p.cost()).sum() {
-            // create a unique name, spawn.
-            let name_base = game::time();
-            let name = format!("{}-{}", name_base, additional);
-            match spawn.spawn_creep(&body, &name) {
-                Ok(()) => additional += 1,
-                Err(e) => warn!("couldn't spawn: {:?}", e),
+        let harvester_spawn_info = CreepSpawnInfo { name_prefix: "harvester".to_string(), parts: Vec::from([Work, Work, Move])};
+
+        let hauler_body = [Part::Move, Part::Move, Part::Carry];
+
+        let emergency_body = [Part::Move, Part::Move, Part::Carry, Part::Work];
+
+        let mut harvester_count = 0;
+
+        for (name, creep) in game::creeps().entries() {
+            let prefix: Vec<&str> = name.split("-").collect();
+            match prefix[0] {
+                "harvester" => harvester_count += 1,
+                _ => { debug!("prefix was empty!")}
             }
         }
+
+        if harvester_count < 3 {
+            spawn_creep(spawn, &harvester_spawn_info);
+        }
+
+        info!("found {harvester_count} harvester!");
     }
 
     // memory cleanup; memory gets created for all creeps upon spawning, and any time move_to
@@ -103,6 +112,18 @@ pub fn game_loop() {
     info!("done! cpu: {}", game::cpu::get_used())
 }
 
+fn spawn_creep(spawn: StructureSpawn, creep_spawn_info: &CreepSpawnInfo) {
+    if spawn.room().unwrap().energy_available() >= creep_spawn_info.parts.iter().map(|p| p.cost()).sum() {
+        // create a unique name, spawn.
+        let name_base = game::time();
+        let name = format!("{}-{}", creep_spawn_info.name_prefix, name_base);
+        match spawn.spawn_creep(&creep_spawn_info.parts, &name) {
+            Ok(()) => info!("creep spawned with name: {name}"),
+            Err(e) => warn!("couldn't spawn: {:?}", e),
+        }
+    }
+}
+
 fn run_creep(creep: &Creep, creep_targets: &mut HashMap<String, CreepTarget>) {
     if creep.spawning() {
         return;
@@ -119,8 +140,7 @@ fn run_creep(creep: &Creep, creep_targets: &mut HashMap<String, CreepTarget>) {
                     if creep.store().get_used_capacity(Some(ResourceType::Energy)) > 0 =>
                 {
                     if let Some(controller) = controller_id.resolve() {
-                        creep
-                            .upgrade_controller(&controller)
+                        creep.upgrade_controller(&controller)
                             .unwrap_or_else(|e| match e {
                                 ErrorCode::NotInRange => {
                                     let _ = creep.move_to(&controller);
