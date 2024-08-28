@@ -38,3 +38,4 @@ screeps.toml
 result
 
 .cargo/
+!/.cargo/config.toml
