@@ -1,8 +1,8 @@
-use std::{fmt::Write, panic};
-use std::panic::PanicHookInfo;
 use js_sys::JsString;
 use log::*;
 use screeps::game;
+use std::panic::PanicHookInfo;
+use std::{fmt::Write, panic};
 use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::console;
 
@@ -11,26 +11,26 @@ pub use log::LevelFilter::*;
 struct JsLog;
 struct JsNotify;
 
-impl log::Log for JsLog {
-    fn enabled(&self, _: &log::Metadata<'_>) -> bool {
+impl Log for JsLog {
+    fn enabled(&self, _: &Metadata<'_>) -> bool {
         true
     }
-    fn log(&self, record: &log::Record<'_>) {
+    fn log(&self, record: &Record<'_>) {
         console::log_1(&JsString::from(format!("{}", record.args())));
     }
     fn flush(&self) {}
 }
-impl log::Log for JsNotify {
-    fn enabled(&self, _: &log::Metadata<'_>) -> bool {
+impl Log for JsNotify {
+    fn enabled(&self, _: &Metadata<'_>) -> bool {
         true
     }
-    fn log(&self, record: &log::Record<'_>) {
+    fn log(&self, record: &Record<'_>) {
         game::notify(&format!("{}", record.args()), None);
     }
     fn flush(&self) {}
 }
 
-pub fn setup_logging(verbosity: log::LevelFilter) {
+pub fn setup_logging(verbosity: LevelFilter) {
     fern::Dispatch::new()
         .level(verbosity)
         .format(|out, message, record| {
@@ -49,15 +49,15 @@ pub fn setup_logging(verbosity: log::LevelFilter) {
                 message
             ))
         })
-        .chain(Box::new(JsLog) as Box<dyn log::Log>)
+        .chain(Box::new(JsLog) as Box<dyn Log>)
         .chain(
             fern::Dispatch::new()
-                .level(log::LevelFilter::Warn)
+                .level(Warn)
                 .format(|out, message, _record| {
                     let time = game::time();
                     out.finish(format_args!("[{}] {}", time, message))
                 })
-                .chain(Box::new(JsNotify) as Box<dyn log::Log>),
+                .chain(Box::new(JsNotify) as Box<dyn Log>),
         )
         .apply()
         .expect("expected setup_logging to only ever be called once per instance");
@@ -82,7 +82,7 @@ fn panic_hook(info: &PanicHookInfo) {
     // import JS Error API to get backtrace info (backtraces don't work in wasm)
     // Node 8 does support this API: https://nodejs.org/docs/latest-v8.x/api/errors.html#errors_error_stack
 
-    let mut fmt_error = String::new();
+    let mut fmt_error: String = String::new();
     let _ = writeln!(fmt_error, "{}", info);
 
     // this could be controlled with an env var at compilation instead

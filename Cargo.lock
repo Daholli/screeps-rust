@@ -187,6 +187,7 @@ dependencies = [
  "js-sys",
  "log",
  "screeps-game-api",
+ "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "web-sys",
