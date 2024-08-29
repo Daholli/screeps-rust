@@ -9,6 +9,7 @@ use crate::{
     worker::{WorkerId, WorkerState},
 };
 
+mod constants;
 mod logging;
 mod movement;
 mod role;
