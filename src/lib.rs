@@ -1,15 +1,19 @@
-use crate::role::WorkerRole;
-use crate::worker::{WorkerId, WorkerState};
+use std::collections::{HashMap, HashSet};
+
 use log::*;
 use screeps::{game, HasId, HasPosition, SharedCreepProperties};
-use std::collections::{HashMap, HashSet};
 use wasm_bindgen::prelude::*;
 
+use crate::{
+    role::WorkerRole,
+    worker::{WorkerId, WorkerState},
+};
+
 mod logging;
-mod role;
-mod worker;
-mod task;
 mod movement;
+mod role;
+mod task;
+mod worker;
 
 mod constants {
     /// Won't do pathing for moving creeps if current-tick CPU spend is above this level when movement step is reached
@@ -93,6 +97,3 @@ pub fn game_loop() {
         tick - shard_state.global_init_time
     )
 }
-
-
-

@@ -1,13 +1,17 @@
-mod goal;
-mod path_state;
+use std::collections::HashMap;
 
-use crate::constants::{HIGH_CPU_THRESHOLD, LOW_BUCKET_THRESHOLD};
-use crate::ShardState;
 pub use goal::MovementGoal;
 use log::warn;
 pub use path_state::PathState;
 use screeps::game;
-use std::collections::HashMap;
+
+use crate::{
+    constants::{HIGH_CPU_THRESHOLD, LOW_BUCKET_THRESHOLD},
+    ShardState,
+};
+
+mod goal;
+mod path_state;
 
 #[derive(Clone, Debug)]
 pub enum MovementProfile {

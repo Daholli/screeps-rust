@@ -183,10 +183,12 @@ dependencies = [
 name = "screeps-rust"
 version = "0.0.0"
 dependencies = [
+ "enum_dispatch",
  "fern",
  "js-sys",
  "log",
  "screeps-game-api",
+ "serde",
  "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-test",

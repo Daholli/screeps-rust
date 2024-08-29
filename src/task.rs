@@ -1,30 +1,39 @@
-use crate::movement::{MovementGoal, MovementProfile};
-use crate::worker::{Worker, WorkerReference};
 use screeps::{game, ObjectId, Position, Source, StructureController};
 
+use crate::{
+    movement::{MovementGoal, MovementProfile},
+    worker::{Worker, WorkerReference},
+};
+
 mod harvest;
+mod spawn;
 
 pub enum TaskResult {
     Complete,
     StillWorking,
     MoveMeTo(MovementGoal),
-    AddTaskToFront,
-    CompleteAddTaskToFront,
-    CompleteAddTaskToBack,
+    AddTaskToFront(Task),
+    CompleteAddTaskToFront(Task),
+    CompleteAddTaskToBack(Task),
     DestroyWorker,
 }
 
-
+#[derive(Debug)]
 pub enum Task {
     IdleUntil(u32),
     MoveToPosition(Position, u32),
     HarvestEnergyUntilFull(ObjectId<Source>),
     HarvestEnergyForever(ObjectId<Source>),
     Upgrade(ObjectId<StructureController>),
+    WaitToSpawn,
 }
 
 impl Task {
-    pub fn run_task(&self, worker: &WorkerReference, movement_profile: MovementProfile) -> TaskResult {
+    pub fn run_task(
+        &self,
+        worker: &WorkerReference,
+        movement_profile: MovementProfile,
+    ) -> TaskResult {
         match self {
             Task::IdleUntil(tick) => {
                 if game::time() >= *tick {
@@ -54,6 +63,7 @@ impl Task {
             Task::Upgrade(id) => {
                 todo!("not implemented")
             }
+            Task::WaitToSpawn => spawn::wait_to_spawn(worker),
         }
     }
 }

@@ -1,11 +1,32 @@
-use crate::movement::{MovementGoal, PathState};
-use crate::role::WorkerRole;
-use crate::task::{Task, TaskResult};
-use crate::ShardState;
-use log::warn;
-use screeps::{Creep, HasId, HasPosition, ObjectId, Part, Position, Store, StructureObject, StructureSpawn, StructureTower};
 use std::collections::{HashMap, HashSet, VecDeque};
 
+use enum_dispatch::enum_dispatch;
+use log::warn;
+use screeps::{
+    find,
+    game,
+    Creep,
+    HasId,
+    HasPosition,
+    MaybeHasId,
+    ObjectId,
+    Part,
+    Position,
+    SharedCreepProperties,
+    Store,
+    StructureObject,
+    StructureSpawn,
+    StructureTower,
+};
+
+use crate::{
+    movement::{MovementGoal, MovementProfile, PathState},
+    role::*,
+    task::{Task, TaskResult},
+    ShardState,
+};
+
+#[derive(Eq, Hash, PartialEq)]
 pub enum WorkerId {
     Creep(ObjectId<Creep>),
     Spawn(ObjectId<StructureSpawn>),
@@ -30,7 +51,12 @@ pub enum WorkerReference {
 }
 
 impl WorkerReference {
-    pub(crate) fn move_with_path(&self, path_state: PathState, position: Position, position_hashmap: &mut HashMap<Position, u32>) -> Option<PathState> {
+    pub(crate) fn move_with_path(
+        &self,
+        path_state: PathState,
+        position: Position,
+        position_hashmap: &mut HashMap<Position, u32>,
+    ) -> Option<PathState> {
         todo!()
     }
 }
@@ -60,9 +86,13 @@ impl WorkerReference {
     }
 }
 
+#[enum_dispatch]
 pub trait Worker {
     fn find_task(&self, store: &Store, worker_role: &HashSet<WorkerRole>) -> Task;
     fn get_body_for_creep(&self, spawn: &StructureSpawn) -> Vec<Part>;
+    fn get_movement_profile(&self) -> MovementProfile {
+        MovementProfile::RoadsOneToTwo
+    }
     fn can_move(&self) -> bool {
         true
     }

@@ -1,5 +1,6 @@
-use crate::movement::MovementProfile;
 use screeps::Position;
+
+use crate::movement::MovementProfile;
 
 #[derive(Clone, Debug)]
 pub struct MovementGoal {

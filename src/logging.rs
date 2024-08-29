@@ -1,12 +1,11 @@
+use std::{fmt::Write, panic, panic::PanicHookInfo};
+
 use js_sys::JsString;
+pub use log::LevelFilter::*;
 use log::*;
 use screeps::game;
-use std::panic::PanicHookInfo;
-use std::{fmt::Write, panic};
 use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::console;
-
-pub use log::LevelFilter::*;
 
 struct JsLog;
 struct JsNotify;
@@ -15,18 +14,22 @@ impl Log for JsLog {
     fn enabled(&self, _: &Metadata<'_>) -> bool {
         true
     }
+
     fn log(&self, record: &Record<'_>) {
         console::log_1(&JsString::from(format!("{}", record.args())));
     }
+
     fn flush(&self) {}
 }
 impl Log for JsNotify {
     fn enabled(&self, _: &Metadata<'_>) -> bool {
         true
     }
+
     fn log(&self, record: &Record<'_>) {
         game::notify(&format!("{}", record.args()), None);
     }
+
     fn flush(&self) {}
 }
 
