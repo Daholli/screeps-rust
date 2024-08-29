@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use log::*;
-use screeps::{game, HasId, HasPosition, SharedCreepProperties};
+use screeps::game;
 use wasm_bindgen::prelude::*;
 
 use crate::{
@@ -14,13 +14,6 @@ mod movement;
 mod role;
 mod task;
 mod worker;
-
-mod constants {
-    /// Won't do pathing for moving creeps if current-tick CPU spend is above this level when movement step is reached
-    pub const HIGH_CPU_THRESHOLD: f64 = 250.;
-    /// Won't do pathing for moving creeps if bucket is below this number
-    pub const LOW_BUCKET_THRESHOLD: i32 = 1_000;
-}
 
 // this is one method of persisting data on the wasm memory heap between ticks
 // this is an alternative to keeping state in memory on game objects - but will be lost on
